@@ -10,5 +10,4 @@ export const MockInterview = pgTable('mockInterview', {
     createdBy : varchar('createdBy').notNull(),
     createdAt : varchar('createdAt').notNull(),
     mockId : varchar('mockId').notNull()
-
 })

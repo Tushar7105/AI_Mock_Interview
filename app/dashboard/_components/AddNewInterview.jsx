@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { v4 as uuidv4 } from 'uuid';
 
 
 import {
@@ -15,6 +16,11 @@ import {
   } from "@/components/ui/dialog"
 import { CloudCog, LoaderCircle } from "lucide-react";
 import { chatSession } from "@/utils/GeminiAI";
+import { db } from "@/utils/db";
+import { MockInterview } from "@/utils/schema";
+import { useUser } from "@clerk/nextjs";
+import moment from "moment/moment";
+import { useRouter } from "next/navigation";
   
 
 function AddNewInterview(){
@@ -26,6 +32,8 @@ function AddNewInterview(){
     const [loading, setLoading] = useState(false);
 
     const [jsonResponse, setJsonResponse] = useState();
+    const user = useUser();
+    const router = useRouter();
 
     const onSubmit = async (e)=>{
         e.preventDefault()
@@ -40,6 +48,30 @@ Depend on the input give 5 interview questions along with answers in JSON format
 
         console.log(JSON.parse(MockResp));
         setJsonResponse(MockResp);
+
+        if(MockResp){
+            const resp = await db.insert(MockInterview).values({
+                mockId : uuidv4(),
+                jsonMockResp : MockResp,
+                jobPosition : jobPosition,
+                jobDescription : jobDescription,
+                jobExperience : jobExperience,
+                createdBy : user?.primaryEmailAdress?.emailAddress ?? "",
+                createdAt : moment().format('DD-MM-yyyy')
+            }).returning({mockId : MockInterview.mockId})
+            console.log("response ID: ", resp); 
+            if(resp){
+                setOpenDialog(false); 
+            }
+            // Navigate to the interview page
+            if (resp && resp[0]?.mockId) {
+                router.push('/dashboard/interview/' + resp[0]?.mockId);
+            } else {
+                console.error("Failed to get mockId from response:", resp);
+            }
+        }
+        else{ console.log("ERROR") }
+
         setLoading(false);
     }
     return(
