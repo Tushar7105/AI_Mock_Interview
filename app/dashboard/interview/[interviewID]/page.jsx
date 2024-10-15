@@ -1,10 +1,10 @@
 "use client"
 import { useEffect, useState } from "react";
-import { db } from "@/utils/db";
-import { MockInterview } from "@/utils/schema";
+import { db } from "../../../../utils/db";
+import { MockInterview } from "../../../../utils/schema";
 import { eq } from "drizzle-orm";
 import { Lightbulb, WebcamIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../../components/ui/button";
 import Webcam from "react-webcam";
 import Link from "next/link";
 
@@ -59,8 +59,10 @@ function Interview({params}){
                     </>}
                 </div>
             </div>
-            <div className="flex justify-end items-end">
-                <Button>Start Interview</Button>
+            <div className="flex justify-end items-end mt-5">
+                <Link href={`/dashboard/interview/${params.interviewID}/start`}>
+                    <Button>Start Interview</Button>
+                </Link>
             </div>
         </div>
     )
