@@ -22,7 +22,7 @@ function startInterview({params}){
     };
 
     useEffect(()=>{
-        console.log(params.interviewId);
+        console.log(params.interviewID);
         getInterviewDetails();
     },[])
 

@@ -18,7 +18,7 @@ import { CloudCog, LoaderCircle } from "lucide-react";
 import { chatSession } from "../../../utils/GeminiAI";
 import { db } from "../../../utils/db";
 import { MockInterview } from "../../../utils/schema";
-import { useUser } from "@clerk/nextjs";
+import { useSession, useUser } from "@clerk/nextjs";
 import moment from "moment/moment";
 import { useRouter } from "next/navigation";
   
@@ -34,14 +34,17 @@ function AddNewInterview(){
     const [jsonResponse, setJsonResponse] = useState();
     const user = useUser();
     const router = useRouter();
+    const session = useSession();
 
     const onSubmit = async (e)=>{
         e.preventDefault()
         setLoading(true);
         console.log(jobPosition, jobDescription, jobExperience)
 
-        const InputPrompt = `Job Position : ${jobPosition}; Job Description: ${jobDescription}; Years of Experience : ${jobExperience}
-Depend on the input give 5 interview questions along with answers in JSON format. Give question and answer as JSON field`
+        const InputPrompt = `Job Position : ${jobPosition}; Job Description: ${jobDescription}; 
+                            Years of Experience : ${jobExperience} Depend on the input give 5 interview 
+                            questions along with answers in JSON format. Give question and answer as JSON 
+                            field`
 
         const result = await chatSession.sendMessage(InputPrompt);
         const MockResp = (result.response.text()).replace("```json", '').replace("```",'' );
@@ -56,7 +59,7 @@ Depend on the input give 5 interview questions along with answers in JSON format
                 jobPosition : jobPosition,
                 jobDescription : jobDescription,
                 jobExperience : jobExperience,
-                createdBy : user?.primaryEmailAdress?.emailAddress ?? "",
+                createdBy: (session.isLoaded && session.isSignedIn) ? session.session?.user?.primaryEmailAddress?.emailAddress : "",
                 createdAt : moment().format('DD-MM-yyyy')
             }).returning({mockId : MockInterview.mockId})
             console.log("response ID: ", resp); 
