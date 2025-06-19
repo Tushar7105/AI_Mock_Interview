@@ -1,0 +1,42 @@
+version: "3.8"
+name: ai_interview_docker
+
+services:
+  db:
+    image: postgres:latest
+    container_name: database
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: aiinterview
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - interview-network
+
+  ai_interview:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_interview
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      NEXT_PUBLIC_DB_URL: postgres://root:rootpassword@db:5432/aiinterview
+    depends_on:
+      - db
+    networks:
+      - interview-network
+
+volumes:
+  postgres_data:
+
+networks:
+  interview-network:
+    driver: bridge
