@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { db } from "../../../../utils/db";
 import { MockInterview } from "../../../../utils/schema";
 import { eq } from "drizzle-orm";
@@ -8,21 +8,23 @@ import { Button } from "../../../../components/ui/button";
 import Webcam from "react-webcam";
 import Link from "next/link";
 
-function Interview({params}){
+function Interview({ params }) {
 
     const [interviewData, setInterviewData] = useState();
     const [webcamEnabled, setWebcamEnabled] = useState(false);
+    const { interviewID } = use(params)
     const getInterviewDetails = async () => {
-        const result = await db.select().from(MockInterview).where(eq(MockInterview.mockId, params.interviewID));
+        const result = await db.select().from(MockInterview).where(eq(MockInterview.mockId, interviewID));
         console.log(result);
         setInterviewData(result[0]);
 
     };
 
-    useEffect(()=>{
-        console.log(params.interviewId);
-        getInterviewDetails();
-    },[])
+    useEffect(() => {
+        if (interviewID) {
+            getInterviewDetails();
+        }
+    }, [interviewID]);
 
     return (
         <div className="my-10  ">
@@ -32,7 +34,7 @@ function Interview({params}){
                     <div className="flex flex-col my-5 gap-5 p-5 rounded-lg border">
                         <h2 className="text-lg"><strong>Job Position / Job Role :</strong>{interviewData?.jobPosition}</h2>
                         <h2 className="text-lg"><strong>Job Description / Tech Stack :</strong>{interviewData?.jobDescription}</h2>
-                        <h2 className="text-lg"><strong>Years of Experience :</strong>{interviewData?.jobExperience }</h2>
+                        <h2 className="text-lg"><strong>Years of Experience :</strong>{interviewData?.jobExperience}</h2>
                     </div>
                     <div className="p-5 border rounded-lg border-yellow-300 bg-yellow-100">
                         <h2 className="flex gap-2 items-center">
@@ -44,23 +46,23 @@ function Interview({params}){
                 </div>
 
                 <div>
-                    {webcamEnabled ? <Webcam 
-                        onUserMedia={()=>setWebcamEnabled(true)}
-                        onUserMediaError={()=>setWebcamEnabled(false)}
+                    {webcamEnabled ? <Webcam
+                        onUserMedia={() => setWebcamEnabled(true)}
+                        onUserMediaError={() => setWebcamEnabled(false)}
                         mirrored={true}
                         style={{
-                            height : 300,
-                            width : 300
+                            height: 300,
+                            width: 300
                         }}
-                    /> 
-                    :<>
-                        <WebcamIcon className="h-72 w-full my-7 p-20 bg-secondary rounded-lg border"/>
-                        <Button className="w-full" onClick={()=>setWebcamEnabled(true)}>Enable WebCam and Microphone</Button>
-                    </>}
+                    />
+                        : <>
+                            <WebcamIcon className="h-72 w-full my-7 p-20 bg-secondary rounded-lg border" />
+                            <Button className="w-full" onClick={() => setWebcamEnabled(true)}>Enable WebCam and Microphone</Button>
+                        </>}
                 </div>
             </div>
             <div className="flex justify-end items-end mt-5">
-                <Link href={`/dashboard/interview/${params.interviewID}/start`}>
+                <Link href={`/dashboard/interview/${interviewID}/start`}>
                     <Button>Start Interview</Button>
                 </Link>
             </div>
